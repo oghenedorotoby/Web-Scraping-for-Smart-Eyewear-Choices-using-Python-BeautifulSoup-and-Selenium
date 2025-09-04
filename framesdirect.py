@@ -1,5 +1,6 @@
 import csv
 import json
+import re
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -49,6 +50,21 @@ except (TimeoutError, Exception) as e:
 content = driver.page_source
 page = BeautifulSoup(content, 'html.parser')
 
+def normalize_price(text):
+    """Convert a price string like '$299.00' into a float (299.0)."""
+    if not text:
+        return None
+    # Extract numbers (with decimals) from the text
+    match = re.search(r"\d+(\.\d+)?", text.replace(",", ""))  # handles $1,299.50
+    return float(match.group()) if match else None
+
+def clean_text(tag):
+    """Return text from a tag, or None if missing/empty."""
+    if tag:
+        text = tag.get_text(strip=True)
+        return text if text else None
+    return None
+
 # Temporary storage for the extracted data
 frames_data = []
 
@@ -71,10 +87,12 @@ for holder in product_holders:
         if price_cnt:
             # Former Price
             former_price_tag = price_cnt.find('div', class_='prod-catalog-retail-price')
-            former_price = former_price_tag.text if former_price_tag else None
+            former_price_raw = clean_text(former_price_tag)
+            former_price = normalize_price(former_price_raw)
             # Current Price
             current_price_tag = price_cnt.find('div', class_='prod-aslowas')
-            current_price = current_price_tag.text if current_price_tag else None
+            current_price_raw = clean_text(current_price_tag)
+            current_price = normalize_price(current_price_raw)
         else:
             former_price = current_price = None
     else:
@@ -82,7 +100,7 @@ for holder in product_holders:
         # Automatically applies missing value, if the product info is not available.
     
     discount_tag = holder.find('div', class_='frame-discount')
-    discount = discount_tag.text if discount_tag else None
+    discount = clean_text(discount_tag)
 
             
     data = {
