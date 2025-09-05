@@ -15,3 +15,5 @@ This repository contains a fully functional Python script (framesdirect.py) that
 #   data/framesdirect.json
 
 Challenges faced: I used the wrong class names when looking for product details, i had to go back to the websites and get the correct classes for the details i needed.
+I also had challenges in removing the dollar sign from the prices for that i created a function to convert the price string into a float.
+I also noticed in my output that some of the elements that had no value where returning blank instead of it being filled with a null so i also created a function to clean the text output by making sure all blanks were filled with null.
