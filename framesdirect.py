@@ -99,6 +99,12 @@ for holder in product_holders:
         brand = name = former_price = current_price = None 
         # Automatically applies missing value, if the product info is not available.
     
+    brand_tag = holder.find('div', class_='catalog-name')
+    price_cnt = holder.find('div', class_='prod-bot')
+
+    if not brand_tag or not price_cnt:
+     continue  # skip ads or invalid entries
+ 
     discount_tag = holder.find('div', class_='frame-discount')
     discount = clean_text(discount_tag)
 
